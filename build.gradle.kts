@@ -26,6 +26,7 @@ dependencies {
     implementation("io.ktor:ktor-server-core:${rootProject.extra["ktorVersion"]}")
     implementation("io.ktor:ktor-server-netty:${rootProject.extra["ktorVersion"]}")
     implementation("io.ktor", "ktor-jackson", rootProject.extra["ktorVersion"].toString())
+    implementation("io.ktor", "ktor-websockets", rootProject.extra["ktorVersion"].toString())
 
     // Database
     implementation("org.jetbrains.exposed", "exposed-core", rootProject.extra["exposedVersion"].toString())

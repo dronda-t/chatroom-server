@@ -11,6 +11,7 @@ import io.ktor.application.install
 import io.ktor.features.CallLogging
 import io.ktor.features.ContentNegotiation
 import io.ktor.features.DefaultHeaders
+import io.ktor.http.cio.websocket.timeout
 import io.ktor.jackson.jackson
 import io.ktor.response.respondText
 import io.ktor.routing.Routing
@@ -21,14 +22,19 @@ import io.ktor.sessions.get
 import io.ktor.sessions.set
 import io.ktor.sessions.sessions
 import io.ktor.util.generateNonce
+import io.ktor.websocket.WebSockets
 import learn.ktor.resources.chat
 import learn.ktor.services.RoomService
+import java.time.Duration
 
 fun Application.main() {
     install(DefaultHeaders)
     install(CallLogging)
     install(Sessions) {
         cookie<Session>("SESSION")
+    }
+    install(WebSockets) {
+        timeout = Duration.ofSeconds(10)
     }
     install(ContentNegotiation) {
         jackson {
