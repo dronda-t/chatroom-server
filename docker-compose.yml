@@ -1,0 +1,12 @@
+version: '3'
+
+services:
+  database:
+    image: postgres:12.2
+    environment:
+      - "POSTGRES_PASSWORD=password"
+      - "POSTGRES_USER=postgres"
+      - "POSTGRES_DB=room"
+    ports:
+      - "54321:5432"
+
