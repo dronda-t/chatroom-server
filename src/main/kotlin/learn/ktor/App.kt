@@ -3,12 +3,15 @@
  */
 package learn.ktor
 
+import com.fasterxml.jackson.databind.SerializationFeature
 import io.ktor.application.Application
 import io.ktor.application.ApplicationCallPipeline
 import io.ktor.application.call
 import io.ktor.application.install
 import io.ktor.features.CallLogging
+import io.ktor.features.ContentNegotiation
 import io.ktor.features.DefaultHeaders
+import io.ktor.jackson.jackson
 import io.ktor.response.respondText
 import io.ktor.routing.Routing
 import io.ktor.routing.get
@@ -19,12 +22,18 @@ import io.ktor.sessions.set
 import io.ktor.sessions.sessions
 import io.ktor.util.generateNonce
 import learn.ktor.resources.chat
+import learn.ktor.services.RoomService
 
 fun Application.main() {
     install(DefaultHeaders)
     install(CallLogging)
     install(Sessions) {
         cookie<Session>("SESSION")
+    }
+    install(ContentNegotiation) {
+        jackson {
+            configure(SerializationFeature.INDENT_OUTPUT, true)
+        }
     }
 
     intercept(ApplicationCallPipeline.Features) {
@@ -33,8 +42,10 @@ fun Application.main() {
         }
     }
 
+    val roomService = RoomService(this)
+
     install(Routing) {
-        chat()
+        chat(roomService)
         get("/test") {
             call.respondText { "test" }
         }
