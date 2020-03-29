@@ -23,9 +23,9 @@ class ChatService {
     }
 
     private suspend fun sendMessage(id: String, body: String) {
-        body.slice(MESSAGE.length..body.length)
+        val message = body.slice(MESSAGE.length until body.length)
 
-
+        broadcast(message)
     }
 
     private suspend fun broadcast(message: String) {
