@@ -4,9 +4,9 @@ import io.ktor.application.application
 import io.ktor.application.call
 import io.ktor.http.HttpStatusCode
 import io.ktor.response.respond
-import io.ktor.response.respondText
 import io.ktor.routing.Routing
 import io.ktor.routing.post
+import learn.ktor.api.Room
 import learn.ktor.data.DatabaseConnection.getDatabase
 import learn.ktor.data.entities.RoomEntity
 import learn.ktor.exceptions.UnprocessableEntityException
@@ -19,11 +19,11 @@ fun Routing.chat(roomService: RoomService) {
     val logger = LoggerFactory.getLogger(this::class.java)
 
     post("/createRoom") {
-        transaction(getDatabase(application)) {
-            RoomEntity.new { roomKey = ShortId.generate() }
+        val room = transaction(getDatabase(application)) {
+            return@transaction RoomEntity.new { roomKey = ShortId.generate() }
         }
 
-        call.respondText("Success")
+        call.respond(Room(room))
     }
 
     post("/joinRoom") {
