@@ -20,7 +20,7 @@ fun Routing.chat(roomService: RoomService) {
 
     post("/createRoom") {
         val room = transaction(getDatabase(application)) {
-            return@transaction RoomEntity.new { roomKey = ShortId.generate() }
+            RoomEntity.new { roomKey = ShortId.generate() }
         }
 
         call.respond(Room(room))
