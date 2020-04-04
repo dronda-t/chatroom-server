@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.google.inject.Guice
 import io.ktor.application.Application
+import io.ktor.application.ApplicationCallPipeline
 import io.ktor.application.call
 import io.ktor.application.install
 import io.ktor.features.CORS
@@ -21,6 +22,10 @@ import io.ktor.routing.Routing
 import io.ktor.routing.get
 import io.ktor.sessions.Sessions
 import io.ktor.sessions.cookie
+import io.ktor.sessions.get
+import io.ktor.sessions.sessions
+import io.ktor.sessions.set
+import io.ktor.util.generateNonce
 import io.ktor.websocket.WebSockets
 import learn.ktor.injection.modules.ApplicationModule
 import learn.ktor.injection.modules.ResourceModule
@@ -35,6 +40,12 @@ fun Application.main() {
             ServiceModule(),
             ResourceModule()
     )
+
+    intercept(ApplicationCallPipeline.Features) {
+        if (call.sessions.get<Session>() == null) {
+            call.sessions.set(Session(generateNonce()))
+        }
+    }
 }
 
 fun installFeatures(application: Application) = with(application) {

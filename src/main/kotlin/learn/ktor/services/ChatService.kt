@@ -29,13 +29,7 @@ class ChatService @Inject constructor(private val objectMapper: ObjectMapper) {
     suspend fun memberLeft(member: String, socket: WebSocketSession) {
         members.remove(member)
         transaction {
-            UserEntity.find { Users.sessionKey eq member }.firstOrNull()?.let { user ->
-                val room = user.room
-                user.delete()
-                if (room.users.count() == 0L) {
-                    room.delete()
-                }
-            }
+            UserEntity.find { Users.sessionKey eq member }.firstOrNull()?.delete()
         }
 
         logger.debug("Member \"$member\" left")
@@ -52,17 +46,24 @@ class ChatService @Inject constructor(private val objectMapper: ObjectMapper) {
         withContext(Dispatchers.IO) {
             try {
                 val message = objectMapper.readValue(unparsedMessage, Message::class.java)
-                broadcast(message.data)
+                val userSessionKeys = transaction {
+                    UserEntity.find { Users.sessionKey eq id }.first().room.users.map {
+                        it.sessionKey
+                    }
+                }
+                broadcast(message.data, userSessionKeys)
             } catch (e: IOException) {
                 logger.error("Unable to parse message")
+            } catch (e: NoSuchElementException) {
+                logger.error("Unable to find user")
             }
         }
 
     }
 
-    private suspend fun broadcast(message: String) {
-        members.values.forEach { socket ->
-            socket.send(Frame.Text(message))
+    private suspend fun broadcast(message: String, userSessionKeys: List<String>) {
+        userSessionKeys.forEach {
+            members[it]?.send(Frame.Text(message))
         }
     }
 
