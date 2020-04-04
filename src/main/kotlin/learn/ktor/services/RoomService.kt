@@ -1,5 +1,7 @@
 package learn.ktor.services
 
+import com.google.inject.Inject
+import com.google.inject.Singleton
 import io.ktor.application.Application
 import learn.ktor.api.User
 import learn.ktor.data.DatabaseConnection.getDatabase
@@ -10,7 +12,8 @@ import learn.ktor.exceptions.UnprocessableEntityException
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.LoggerFactory
 
-class RoomService(private val application: Application) {
+@Singleton
+class RoomService @Inject constructor(private val application: Application) {
     private val logger = LoggerFactory.getLogger(this::class.java)
 
     @Throws(UnprocessableEntityException::class)
@@ -25,5 +28,4 @@ class RoomService(private val application: Application) {
         }
         return@transaction User(user)
     }
-
 }

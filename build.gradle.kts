@@ -34,6 +34,9 @@ dependencies {
     implementation("org.jetbrains.exposed", "exposed-jdbc", rootProject.extra["exposedVersion"].toString())
     implementation("org.postgresql", "postgresql", "42.2.2")
 
+    // Injection
+    implementation("com.google.inject", "guice", "4.2.3")
+
     // Logging
     implementation("ch.qos.logback:logback-classic:1.2.3")
 

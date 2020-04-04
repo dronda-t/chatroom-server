@@ -3,9 +3,10 @@
  */
 package learn.ktor
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
+import com.google.inject.Guice
 import io.ktor.application.Application
-import io.ktor.application.ApplicationCallPipeline
 import io.ktor.application.call
 import io.ktor.application.install
 import io.ktor.features.CORS
@@ -20,18 +21,23 @@ import io.ktor.routing.Routing
 import io.ktor.routing.get
 import io.ktor.sessions.Sessions
 import io.ktor.sessions.cookie
-import io.ktor.sessions.get
-import io.ktor.sessions.set
-import io.ktor.sessions.sessions
-import io.ktor.util.generateNonce
 import io.ktor.websocket.WebSockets
-import learn.ktor.resources.chat
-import learn.ktor.resources.webSocketResource
-import learn.ktor.services.ChatService
-import learn.ktor.services.RoomService
+import learn.ktor.injection.modules.ApplicationModule
+import learn.ktor.injection.modules.ResourceModule
+import learn.ktor.injection.modules.ServiceModule
 import java.time.Duration
 
 fun Application.main() {
+    val objectMapper = installFeatures(this)
+
+    Guice.createInjector(
+            ApplicationModule(this, objectMapper),
+            ServiceModule(),
+            ResourceModule()
+    )
+}
+
+fun installFeatures(application: Application) = with(application) {
     install(DefaultHeaders)
     install(CallLogging)
     install(Sessions) {
@@ -47,26 +53,19 @@ fun Application.main() {
     install(WebSockets) {
         timeout = Duration.ofSeconds(10)
     }
-    install(ContentNegotiation) {
-        jackson {
-            configure(SerializationFeature.INDENT_OUTPUT, true)
-        }
-    }
-
-    intercept(ApplicationCallPipeline.Features) {
-        if (call.sessions.get<Session>() == null) {
-            call.sessions.set(Session(generateNonce()))
-        }
-    }
-
-    val roomService = RoomService(this)
-    val chatService = ChatService()
 
     install(Routing) {
-        chat(roomService)
-        webSocketResource(roomService, chatService)
         get("/test") {
             call.respondText { "test" }
         }
     }
+
+    lateinit var objectMapper: ObjectMapper
+    install(ContentNegotiation) {
+        jackson {
+            configure(SerializationFeature.INDENT_OUTPUT, true)
+            objectMapper = this
+        }
+    }
+    (objectMapper)
 }

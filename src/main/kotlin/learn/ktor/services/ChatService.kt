@@ -1,10 +1,11 @@
 package learn.ktor.services
 
+import com.google.inject.Singleton
 import io.ktor.http.cio.websocket.Frame
 import io.ktor.http.cio.websocket.WebSocketSession
 import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.CopyOnWriteArrayList
 
+@Singleton
 class ChatService {
     private val members = ConcurrentHashMap<String, WebSocketSession>()
 
