@@ -9,5 +9,6 @@ class UserEntity(id: EntityID<Int>) : IntEntity(id) {
     companion object : IntEntityClass<UserEntity>(Users)
 
     var name by Users.name
+    var sessionKey by Users.sessionKey
     var room by RoomEntity referencedOn Users.room
 }
