@@ -11,11 +11,13 @@ import io.ktor.routing.routing
 import io.ktor.sessions.get
 import io.ktor.sessions.sessions
 import io.ktor.websocket.webSocket
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.consumeEach
 import learn.ktor.Session
 import learn.ktor.services.ChatService
 import learn.ktor.services.RoomService
 
+@ExperimentalCoroutinesApi
 @Singleton
 class WebSocketResource @Inject constructor(application: Application, roomService: RoomService, chatService: ChatService) {
     init {
