@@ -8,6 +8,9 @@ import io.ktor.http.cio.websocket.WebSocketSession
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import learn.ktor.api.chat.Message
+import learn.ktor.data.entities.UserEntity
+import learn.ktor.data.models.Users
+import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.LoggerFactory
 import java.io.IOException
 import java.util.concurrent.ConcurrentHashMap
@@ -25,6 +28,16 @@ class ChatService @Inject constructor(private val objectMapper: ObjectMapper) {
 
     suspend fun memberLeft(member: String, socket: WebSocketSession) {
         members.remove(member)
+        transaction {
+            UserEntity.find { Users.sessionKey eq member }.firstOrNull()?.let { user ->
+                val room = user.room
+                user.delete()
+                if (room.users.count() == 0L) {
+                    room.delete()
+                }
+            }
+        }
+
         logger.debug("Member \"$member\" left")
     }
 
