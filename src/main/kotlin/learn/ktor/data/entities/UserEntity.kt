@@ -1,5 +1,6 @@
 package learn.ktor.data.entities
 
+import learn.ktor.api.User
 import learn.ktor.data.models.Users
 import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass
@@ -11,4 +12,6 @@ class UserEntity(id: EntityID<Int>) : IntEntity(id) {
     var name by Users.name
     var sessionKey by Users.sessionKey
     var room by RoomEntity referencedOn Users.room
+
+    fun toUser() = User(this)
 }

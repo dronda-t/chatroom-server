@@ -34,7 +34,10 @@ class WebSocketResource @Inject constructor(application: Application, roomServic
                 val roomKey = call.request.queryParameters["roomKey"]
                 requireNotNull(name)
                 requireNotNull(roomKey)
-                roomService.joinRoom(name, roomKey, session.id)
+                roomService.withTransaction {
+                    newUserJoinIfAbsent(name, roomKey, session.id)
+                }
+
                 chatService.memberJoin(session.id, this)
 
                 try {
